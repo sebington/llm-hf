@@ -1,0 +1,22 @@
+[project]
+name = "llm-hf"
+version = "0.1.0"
+description = "LLM plugin for accessing Hugging Face Inference Providers"
+readme = "README.md"
+authors = [{name = "Your Name"}]
+license = "Apache-2.0"
+requires-python = ">=3.8"
+dependencies = [
+    "llm",
+    "openai>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/llm-hf"
+Issues = "https://github.com/yourusername/llm-hf/issues"
+
+[project.entry-points.llm]
+hf = "llm_hf"
+
+[tool.setuptools]
+py-modules = ["llm_hf"]

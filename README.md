@@ -1,0 +1,205 @@
+# llm-hf
+
+[![PyPI](https://img.shields.io/pypi/v/llm-hf.svg)](https://pypi.org/project/llm-hf/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/yourusername/llm-hf/blob/main/LICENSE)
+
+LLM plugin for accessing Hugging Face Inference Providers - giving you access to hundreds of open-weight models through a unified API.
+
+## Installation
+
+Install this plugin in the same environment as [LLM](https://llm.datasette.io/):
+
+```bash
+llm install llm-hf
+```
+
+Or for development:
+
+```bash
+llm install -e .
+```
+
+## Configuration
+
+You need a Hugging Face API token with "Make calls to Inference Providers" permissions.
+
+1. Create a token at https://huggingface.co/settings/tokens/new?tokenType=fineGrained
+2. Set the environment variable:
+
+```bash
+export HF_TOKEN="your-token-here"
+```
+
+Or use `HF_API_KEY` as an alternative environment variable name.
+
+## Usage
+
+### List Available Models
+
+The plugin automatically discovers all available models from Hugging Face:
+
+```bash
+llm models | grep HuggingFaceChat
+```
+
+This will show ~118 models dynamically fetched from the Hugging Face API. If no API token is set, you'll see 13 popular curated models.
+
+### Basic Usage
+
+Simply use the model name directly:
+
+```bash
+llm -m meta-llama/Llama-3.1-8B-Instruct "Explain quantum computing"
+```
+
+### Available Models
+
+**Dynamic Discovery**: When you have an `HF_TOKEN` or `HF_API_KEY` set, the plugin automatically discovers ~118 models from the Hugging Face API, including:
+
+- Meta Llama models (various sizes and versions)
+- Mistral and Mixtral models
+- Qwen and QwQ models
+- DeepSeek models
+- Google Gemma models
+- Cohere Command and Aya models
+- NousResearch Hermes models
+- MiniMax models
+- And many more!
+
+**Fallback Models**: If no API key is configured, these popular models are available:
+
+- Meta Llama: 3.3-70B, 3.1-70B/8B, 3.2-3B/1B Instruct variants
+- Mistral: 7B, Mixtral 8x7B/8x22B Instruct
+- Qwen: 2.5-72B, 2.5-Coder-32B Instruct
+- DeepSeek V3
+- Google Gemma 2: 9B/27B IT
+
+### Examples
+
+**Basic usage:**
+
+```bash
+llm -m meta-llama/Llama-3.1-8B-Instruct "Write a poem"
+```
+
+**With options:**
+
+```bash
+llm -m Qwen/Qwen2.5-Coder-32B-Instruct \
+  -o temperature 0.7 \
+  -o max_tokens 500 \
+  "Write a Python function to sort a list"
+```
+
+**With a specific provider:**
+
+```bash
+llm -m meta-llama/Llama-3.1-8B-Instruct \
+  -o provider sambanova \
+  "What is the capital of France?"
+```
+
+**In a conversation:**
+
+```bash
+llm chat -m meta-llama/Llama-3.1-8B-Instruct
+```
+
+**With system prompt:**
+
+```bash
+llm -m Qwen/Qwen2.5-Coder-32B-Instruct \
+  -s "You are a helpful coding assistant" \
+  "How do I sort a list in Python?"
+```
+
+### Available Options
+
+- `provider` (optional): Specify a provider (e.g., `sambanova`, `together`, `fireworks-ai`, `groq`)
+  - If not specified, Hugging Face automatically selects the best available provider
+  - Note: Not all providers support all models
+- `temperature`: Sampling temperature between 0.0 and 2.0 (default: provider default)
+- `max_tokens`: Maximum number of tokens to generate (default: provider default)
+- `top_p`: Nucleus sampling parameter between 0.0 and 1.0 (default: provider default)
+
+### Supported Providers
+
+When using the `provider` option, you can choose from:
+
+- `sambanova`
+- `together`
+- `fireworks-ai`
+- `groq`
+- `cerebras`
+- `hyperbolic`
+- `featherless-ai`
+- `nebius`
+- `novita`
+- And more!
+
+**Note:** Each provider supports different models. If you request a model from a provider that doesn't support it, you'll get an error message.
+
+### Finding More Models
+
+All models available through Hugging Face Inference Providers are automatically discoverable via `llm models`. You can also browse them at:
+- [Hugging Face Inference Playground](https://huggingface.co/playground)
+- [Chat completion models](https://huggingface.co/models?inference_provider=all&sort=trending&other=conversational)
+
+The plugin uses the same model list as the Hugging Face API, so any model shown in the playground should work with this plugin.
+
+## Logging
+
+All prompts and responses are automatically logged. View logs with:
+
+```bash
+llm logs
+```
+
+View the most recent entry:
+
+```bash
+llm logs -n 1
+```
+
+## Development
+
+To set up this plugin for development:
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/llm-hf
+cd llm-hf
+
+# Install in editable mode
+llm install -e .
+
+# Verify installation
+llm plugins
+
+# Check that models appear
+llm models | grep HuggingFaceChat
+```
+
+### How Model Registration Works
+
+The plugin automatically fetches all available models from the Hugging Face API at startup. The `get_huggingface_models()` function in `llm_hf.py` queries the `/v1/models` endpoint.
+
+If you want to modify the fallback model list (used when no API key is available), edit the `model_ids` list in the `register_models()` function:
+
+```python
+if not model_ids:
+    model_ids = [
+        "meta-llama/Llama-3.1-8B-Instruct",
+        # Add or remove fallback models here
+    ]
+```
+
+Then reinstall:
+
+```bash
+llm install -e .
+```
+
+## License
+
+Apache 2.0
