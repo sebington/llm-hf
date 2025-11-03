@@ -27,8 +27,17 @@ llm install -e .
 
 You need a Hugging Face API token with "Make calls to Inference Providers" permissions.
 
-1. Create a token at https://huggingface.co/settings/tokens/new?tokenType=fineGrained
-2. Set the environment variable:
+First create a token at https://huggingface.co/settings/tokens/new?tokenType=fineGrained
+
+Configure the token/key using the `llm keys set hf` command:
+```bash
+llm keys set hf
+```
+```
+<paste key here>
+```
+
+Alternatively, set the environment variable:
 
 ```bash
 export HF_TOKEN="your-token-here"
