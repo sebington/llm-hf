@@ -1,8 +1,5 @@
 # llm-hf
 
-[![PyPI](https://img.shields.io/pypi/v/llm-hf.svg)](https://pypi.org/project/llm-hf/)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/yourusername/llm-hf/blob/main/LICENSE)
-
 [LLM](https://llm.datasette.io/) plugin for accessing [Hugging Face Inference Providers](https://huggingface.co/docs/inference-providers/index) - giving you access to hundreds of open-weight models through a unified API.
 
 ## Disclaimer
