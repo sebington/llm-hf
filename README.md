@@ -44,8 +44,6 @@ Alternatively, set the environment variable:
 export HF_TOKEN="your-token-here"
 ```
 
-Or use `HF_API_KEY` as an alternative environment variable name.
-
 ## Usage
 
 ### List Available Models
@@ -56,7 +54,7 @@ The plugin automatically discovers all available models from Hugging Face:
 llm models | grep HuggingFaceChat
 ```
 
-This will show ~118 models dynamically fetched from the Hugging Face API. If no API token is set, you'll see 13 popular curated models.
+This will show ~118 models dynamically fetched from the Hugging Face API. If no API/HF token is set, you'll see 13 popular curated models.
 
 ### Basic Usage
 
