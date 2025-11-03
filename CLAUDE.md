@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This project is `llm-hf`, a plugin for the [`llm` CLI tool](https://llm.datasette.io/) that adds support for Hugging Face Inference Providers. The plugin enables users to access hundreds of LLM models through Hugging Face's unified API using an OpenAI-compatible interface.
 
-**Current Status**: Functional plugin with streaming support. Pre-registers popular models from Meta Llama, Mistral, Qwen, DeepSeek, and Google Gemma families.
+**Current Status**: Functional plugin with streaming support. Dynamically fetches ~118 models from Hugging Face Inference Providers API.
 
 ## Development Commands
 
-### Installation and Testing
+### Installation and Setup
 
 ```bash
 # Install the plugin in editable mode for development
@@ -19,29 +19,74 @@ llm install -e .
 # Verify plugin installation
 llm plugins
 
-# Test the plugin with a model
-llm -m <model-id> "test prompt"
-
-# View recent logs
-llm logs -n 1
-
-# Uninstall plugin (useful for testing reinstallation)
+# Uninstall plugin (useful for testing reinstallation or troubleshooting)
 llm uninstall llm-hf -y
 ```
+
+### Testing and Validation
+
+```bash
+# Test the plugin with a model (manual testing)
+llm -m <model-id> "test prompt"
+
+# Test with specific options
+llm -m meta-llama/Llama-3.1-8B-Instruct -o temperature 0.7 "Your prompt"
+
+# Run the provided test script (requires HF_API_KEY)
+python test_hf.py
+
+# View recent logs to verify execution
+llm logs -n 1
+
+# List all available models
+llm models | grep HuggingFaceChat
+```
+
+### Development Workflow
+
+When making changes to the plugin:
+
+1. **Edit `llm_hf.py`** directly - the editable install (`llm install -e .`) picks up changes immediately
+2. **Test your changes** with `llm -m <model-id> "test prompt"`
+3. **Check logs** with `llm logs` to see any errors or debug output
+4. **If plugin breaks**: Run `LLM_LOAD_PLUGINS='' llm uninstall llm-hf -y` to safely uninstall
 
 ### Environment Setup
 
 - Python >=3.8 required (as specified in pyproject.toml)
 - Authentication requires a Hugging Face token with "Make calls to Inference Providers" permissions
-- Set `HF_TOKEN` or `HF_API_KEY` environment variable for API access
+- Set the key using: `llm keys set hf your-token-here`
+- Or use environment variable: `export HF_TOKEN="your-token-here"` or `export HF_API_KEY="your-token-here"`
 - Create token at: https://huggingface.co/settings/tokens/new?tokenType=fineGrained
 
 ### Troubleshooting
 
-If the plugin breaks and prevents `llm` from starting:
+**Plugin breaks and prevents `llm` from starting:**
 ```bash
-LLM_LOAD_PLUGINS='' llm uninstall llm-hf
+LLM_LOAD_PLUGINS='' llm uninstall llm-hf -y
 ```
+
+**Plugin doesn't pick up recent changes:**
+- The editable install should pick up changes immediately, but if not, try:
+```bash
+llm uninstall llm-hf -y
+llm install -e .
+```
+
+**No models appear when running `llm models | grep HuggingFaceChat`:**
+- Verify the plugin installed: `llm plugins | grep hf`
+- Check environment variable is set: `echo $HF_TOKEN` or `echo $HF_API_KEY`
+- Check logs for errors: `llm logs -n 5`
+
+**API authentication errors:**
+- Ensure token has "Make calls to Inference Providers" permission
+- Create token at: https://huggingface.co/settings/tokens/new?tokenType=fineGrained
+- Try `python test_hf.py` to test raw API connectivity
+
+**Model-specific errors:**
+- Some models may not be available on all providers
+- Try with a different provider: `-o provider sambanova` or `-o provider together`
+- Fallback models are always available if API fails
 
 ## Plugin Architecture
 
@@ -100,19 +145,13 @@ Models can specify a provider by appending it to the model ID:
 
 ## Current Implementation
 
-### Dynamic Model Loading (llm_hf.py:8-24)
+### Dynamic Model Loading (llm_hf.py:8-35)
 
 The plugin automatically fetches all available models from the Hugging Face API at registration time:
 - Uses the OpenAI-compatible `/v1/models` endpoint
 - Dynamically discovers ~118 models from various providers
 - Models are sorted alphabetically for easy browsing
-
-**Fallback Behavior**: If no `HF_TOKEN` or `HF_API_KEY` is set, or if the API call fails, the plugin falls back to registering 13 curated popular models:
-- Meta Llama 3.x models (70B, 8B, 3B, 1B variants)
-- Mistral models (7B, Mixtral 8x7B, 8x22B)
-- Qwen models (72B, Coder 32B)
-- DeepSeek V3
-- Google Gemma 2 (9B, 27B)
+- **Requires valid HF_TOKEN or HF_API_KEY**: If no API key is available, no models are registered
 
 ### Viewing Available Models
 
@@ -157,8 +196,42 @@ llm -m NousResearch/Hermes-3-Llama-3.1-8B "test prompt"
 llm models | grep meta-llama
 ```
 
+## Test File
+
+`test_hf.py` is a standalone script that demonstrates basic API connectivity:
+- Tests direct OpenAI client connection to Hugging Face API
+- Useful for verifying your HF_API_KEY is working before testing the plugin
+- Run with: `python test_hf.py`
+- Not a unit test suite, but a manual testing utility
+
+## Understanding the Codebase
+
+### File Structure
+
+- **`llm_hf.py`** (main plugin):
+  - `get_huggingface_models()` - Fetches available models from HF API
+  - `register_models()` - Plugin entry point that registers all models with the LLM CLI
+  - `HuggingFaceChat` - Model class that handles API calls and streaming
+  - `HuggingFaceChat.Options` - Pydantic model for user-configurable options
+
+- **`pyproject.toml`** - Project metadata and plugin entry point definition
+- **`test_hf.py`** - Standalone script for testing raw API connectivity
+
+### Key Flow
+
+1. **Plugin Registration** (`register_models()` hook):
+   - Attempts to fetch models from HF API using `get_huggingface_models()`
+   - Falls back to hardcoded list if API unavailable
+   - Creates `HuggingFaceChat` instance for each model
+
+2. **Execution** (`HuggingFaceChat.execute()` method):
+   - Receives user prompt and conversation history
+   - Builds message array with system prompt + conversation + current prompt
+   - Makes OpenAI-compatible API call to `https://router.huggingface.co/v1`
+   - Handles both streaming and non-streaming responses
+   - Logs usage statistics for database storage
+
 ## Reference Documentation
 
 - `developing-a-model-plugin.txt`: Complete tutorial on plugin development
 - `HF_Inference_Providers.md`: Hugging Face API documentation and examples
-- `test_hf.py`: Working example of HF API usage with OpenAI client

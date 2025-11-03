@@ -5,12 +5,17 @@ from typing import Optional
 from pydantic import Field, field_validator
 
 
-def get_huggingface_models():
+def get_huggingface_models(api_key=None):
     """Fetch available models from Hugging Face API."""
     try:
-        api_key = os.environ.get("HF_TOKEN") or os.environ.get("HF_API_KEY")
         if not api_key:
-            # No API key available, return empty list to use fallback
+            # Try to get from stored key, then environment variables
+            api_key = llm.get_key("", "hf", "HF_TOKEN")
+            if not api_key:
+                api_key = os.environ.get("HF_API_KEY")
+
+        if not api_key:
+            # No API key available, return empty list
             return []
 
         client = OpenAI(
@@ -20,7 +25,7 @@ def get_huggingface_models():
         models_response = client.models.list()
         return sorted([model.id for model in models_response.data])
     except Exception:
-        # If API call fails, return empty list to use fallback
+        # If API call fails, return empty list
         return []
 
 
@@ -30,30 +35,7 @@ def register_models(register):
     # Try to fetch models dynamically from the API
     model_ids = get_huggingface_models()
 
-    # Fallback to a curated list if API call fails or no API key
-    if not model_ids:
-        model_ids = [
-            # Meta Llama models
-            "meta-llama/Llama-3.3-70B-Instruct",
-            "meta-llama/Llama-3.1-70B-Instruct",
-            "meta-llama/Llama-3.1-8B-Instruct",
-            "meta-llama/Llama-3.2-3B-Instruct",
-            "meta-llama/Llama-3.2-1B-Instruct",
-            # Mistral models
-            "mistralai/Mistral-7B-Instruct-v0.3",
-            "mistralai/Mixtral-8x7B-Instruct-v0.1",
-            "mistralai/Mixtral-8x22B-Instruct-v0.1",
-            # Qwen models
-            "Qwen/Qwen2.5-72B-Instruct",
-            "Qwen/Qwen2.5-Coder-32B-Instruct",
-            # DeepSeek
-            "deepseek-ai/DeepSeek-V3",
-            # Google Gemma
-            "google/gemma-2-9b-it",
-            "google/gemma-2-27b-it",
-        ]
-
-    # Register all models
+    # Only register models if API key is available
     for model_id in model_ids:
         register(HuggingFaceChat(model_id))
 
@@ -68,6 +50,8 @@ class HuggingFaceChat(llm.Model):
     """
 
     can_stream = True
+    needs_key = "hf"
+    key_env_var = "HF_TOKEN"
 
     class Options(llm.Options):
         provider: Optional[str] = Field(
@@ -116,27 +100,18 @@ class HuggingFaceChat(llm.Model):
         self.hf_model_id = hf_model_id
         if description:
             self.__class__.__doc__ = description
-        self.client = None
 
-    def _get_client(self):
+    def _get_client(self, api_key):
         """Initialize OpenAI client for Hugging Face API."""
-        if self.client is None:
-            api_key = os.environ.get("HF_TOKEN") or os.environ.get("HF_API_KEY")
-            if not api_key:
-                raise ValueError(
-                    "Hugging Face API key not found. Set HF_TOKEN or HF_API_KEY environment variable. "
-                    "Get a token from https://huggingface.co/settings/tokens"
-                )
-
-            self.client = OpenAI(
-                base_url="https://router.huggingface.co/v1",
-                api_key=api_key
-            )
-        return self.client
+        return OpenAI(
+            base_url="https://router.huggingface.co/v1",
+            api_key=api_key
+        )
 
     def execute(self, prompt, stream, response, conversation):
         """Execute a prompt against the Hugging Face API."""
-        client = self._get_client()
+        api_key = self.get_key()
+        client = self._get_client(api_key)
 
         # Use the model ID from the instance
         model = self.hf_model_id
