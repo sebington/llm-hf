@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Development environment files
+CLAUDE.md
+developing-a-model-plugin.txt
+HF_Inference_Providers.md

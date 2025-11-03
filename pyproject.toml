@@ -3,7 +3,7 @@ name = "llm-hf"
 version = "0.1.0"
 description = "LLM plugin for accessing Hugging Face Inference Providers"
 readme = "README.md"
-authors = [{name = "Your Name"}]
+authors = [{name = "Sébastien de Villèle"}]
 license = "Apache-2.0"
 requires-python = ">=3.8"
 dependencies = [
@@ -12,8 +12,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/llm-hf"
-Issues = "https://github.com/yourusername/llm-hf/issues"
+Homepage = "https://github.com/sebington/llm-hf"
+Issues = "https://github.com/sebington/llm-hf/issues"
 
 [project.entry-points.llm]
 hf = "llm_hf"
