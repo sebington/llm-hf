@@ -8,13 +8,17 @@ This plugin is a personal project. Contributions and feedback are welcome, but p
 
 ## Installation
 
-Install this plugin in the same environment as [LLM](https://llm.datasette.io/):
+Make sure [LLM](https://llm.datasette.io/) is installed on your machine.
+
+Then clone this repository:
 
 ```bash
-llm install llm-hf
+git clone https://github.com/sebington/llm-hf.git
 ```
 
-Or for development:
+```bash
+cd llm-hf
+```
 
 ```bash
 llm install -e .
