@@ -2,9 +2,9 @@
 
 [LLM](https://llm.datasette.io/) plugin for accessing [Hugging Face Inference Providers](https://huggingface.co/docs/inference-providers/index) - giving you access to hundreds of open-weight models through a unified API.
 
-## Disclaimer
+## Project Status
 
-This plugin is a personal project. Contributions and feedback are welcome, but please note that support may be limited.
+This is a personal project. Contributions and feedback are welcome, but please note that support may be limited.
 
 ## Installation
 
