@@ -66,7 +66,7 @@ llm -m meta-llama/Llama-3.1-8B-Instruct "Explain quantum computing"
 
 ### Available Models
 
-**Dynamic Discovery**: When you have an `HF_TOKEN` or `HF_API_KEY` set, the plugin automatically discovers ~118 models from the Hugging Face API, including:
+**Dynamic Discovery**: When you have an `HF_TOKEN` set, the plugin automatically discovers ~118 models from the Hugging Face API, including:
 
 - Meta Llama models (various sizes and versions)
 - Mistral and Mixtral models
