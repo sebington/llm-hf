@@ -54,7 +54,7 @@ The plugin automatically discovers all available models from Hugging Face:
 llm models | grep HuggingFaceChat
 ```
 
-This will show ~118 models dynamically fetched from the Hugging Face API.
+This will show ~116 models dynamically fetched from the Hugging Face API.
 
 ### Basic Usage
 
