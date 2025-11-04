@@ -4,7 +4,7 @@
 
 ## Project Status
 
-This is a personal project and is still being developed. Contributions and feedback are welcome, but please note that support may be limited.
+This is a personal project that is still in development. Contributions and feedback are welcome, but please note that support may be limited.
 
 ## Installation
 
