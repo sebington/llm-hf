@@ -1,5 +1,6 @@
 import llm
 import os
+import click
 from openai import OpenAI
 from typing import Optional
 from pydantic import Field, field_validator
@@ -15,7 +16,7 @@ def get_huggingface_models(api_key=None):
                 api_key = os.environ.get("HF_API_KEY")
 
         if not api_key:
-            # No API key available, return empty list
+            # No token available, return empty list
             return []
 
         client = OpenAI(
@@ -35,7 +36,7 @@ def register_models(register):
     # Try to fetch models dynamically from the API
     model_ids = get_huggingface_models()
 
-    # Only register models if API key is available
+    # Only register models if token is available
     for model_id in model_ids:
         register(HuggingFaceChat(model_id))
 
@@ -173,3 +174,75 @@ class HuggingFaceChat(llm.Model):
                     "total_tokens": getattr(completion.usage, 'total_tokens', None),
                 }
             }
+
+
+@llm.hookimpl
+def register_commands(cli):
+    @cli.group()
+    def hf():
+        """Commands relating to the llm-hf plugin"""
+
+    @hf.command()
+    def refresh():
+        """Refresh the list of available Hugging Face models"""
+        # Try to get the token
+        api_key = None
+        try:
+            api_key = llm.get_key("", "hf", "HF_TOKEN")
+            if not api_key:
+                api_key = os.environ.get("HF_API_KEY")
+        except Exception:
+            pass
+
+        if not api_key:
+            click.echo("Error: No token found. Set one with 'llm keys set hf' or HF_TOKEN environment variable.", err=True)
+            return
+
+        # Get current models
+        click.echo("Fetching models from Hugging Face API...")
+        current_models = set(get_huggingface_models(api_key))
+
+        if not current_models:
+            click.echo("Error: Failed to fetch models from Hugging Face API.", err=True)
+            return
+
+        # Get previously cached models from the plugin registry
+        previous_models = set()
+        for model in llm.get_models():
+            if isinstance(model, HuggingFaceChat):
+                previous_models.add(model.model_id)
+
+        # Calculate differences
+        added = current_models - previous_models
+        removed = previous_models - current_models
+
+        # Report results
+        if added or removed:
+            if added:
+                click.echo(f"\nAdded models ({len(added)}):")
+                for model_id in sorted(added):
+                    click.echo(f"  + {model_id}")
+            if removed:
+                click.echo(f"\nRemoved models ({len(removed)}):")
+                for model_id in sorted(removed):
+                    click.echo(f"  - {model_id}")
+            click.echo(f"\nTotal models available: {len(current_models)}")
+        else:
+            click.echo(f"No changes. Total models available: {len(current_models)}")
+
+    @hf.command()
+    def models():
+        """List all available Hugging Face models"""
+        # Get all registered HuggingFace models
+        hf_models = []
+        for model in llm.get_models():
+            if isinstance(model, HuggingFaceChat):
+                hf_models.append(model.model_id)
+
+        if not hf_models:
+            click.echo("No Hugging Face models registered. Run 'llm hf refresh' or set your HF_TOKEN.", err=True)
+            return
+
+        click.echo(f"Available Hugging Face models ({len(hf_models)}):\n")
+        for model_id in sorted(hf_models):
+            click.echo(f"  {model_id}")
