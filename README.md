@@ -26,11 +26,13 @@ llm install -e .
 
 ## Configuration
 
-You need a Hugging Face "access token" with "Make calls to Inference Providers" permissions.
+You need a Hugging Face access token with "Make calls to Inference Providers" permissions.
 
-First create a token at https://huggingface.co/settings/tokens/new?tokenType=fineGrained
+First, create a token at https://huggingface.co/settings/tokens/new?tokenType=fineGrained
 
-Configure the token using the `llm keys set hf` command:
+Then configure it using one of these methods:
+
+**Option 1: Using llm keys (recommended)**
 ```bash
 llm keys set hf
 ```
@@ -38,23 +40,39 @@ llm keys set hf
 <paste token here>
 ```
 
-Alternatively, set the environment variable:
-
+**Option 2: Using environment variable**
 ```bash
 export HF_TOKEN="your-token-here"
 ```
 
+**Note:** For backward compatibility, `HF_API_KEY` is also supported, but `HF_TOKEN` is recommended as it matches Hugging Face's official naming convention.
+
 ## Usage
 
-### List Available Models
+### Plugin Commands
 
-The plugin automatically discovers all available models from Hugging Face:
+The plugin provides an `llm hf` command group for managing Hugging Face models:
+
+```bash
+# List all available Hugging Face models
+llm hf models
+
+# Refresh the model list from the API and see what changed
+llm hf refresh
+```
+
+The `llm hf refresh` command is particularly useful to:
+- Check if new models have been added to Hugging Face Inference Providers
+- See which models have been removed from the service
+- Verify your token is working correctly
+
+**Alternative way to list models:**
 
 ```bash
 llm models | grep HuggingFaceChat
 ```
 
-This will show ~116 models dynamically fetched from the Hugging Face API.
+Both methods show ~116 models dynamically fetched from the Hugging Face API.
 
 ### Basic Usage
 
@@ -66,7 +84,7 @@ llm -m meta-llama/Llama-3.1-8B-Instruct "Explain quantum computing"
 
 ### Available Models
 
-**Dynamic Discovery**: When you have an `HF_TOKEN` set, the plugin automatically discovers ~116 models from the Hugging Face API, including:
+The plugin automatically discovers ~116 models from the Hugging Face API (when you have an `HF_TOKEN` set), including:
 
 - Meta Llama models (various sizes and versions)
 - Mistral and Mixtral models
@@ -79,6 +97,16 @@ llm -m meta-llama/Llama-3.1-8B-Instruct "Explain quantum computing"
 - And many more!
 
 ### Examples
+
+**Using plugin commands:**
+
+```bash
+# List available models
+llm hf models
+
+# Check for model updates
+llm hf refresh
+```
 
 **Basic usage:**
 
@@ -145,11 +173,21 @@ When using the `provider` option, you can choose from:
 
 ### Finding More Models
 
-All models available through Hugging Face Inference Providers are automatically discoverable via `llm models`. You can also browse them at:
+All models available through Hugging Face Inference Providers are automatically discoverable:
+
+```bash
+# Recommended: Use the plugin command
+llm hf models
+
+# Or use the global command with filtering
+llm models | grep HuggingFaceChat
+```
+
+You can also browse available models at:
 - [Hugging Face Inference Playground](https://huggingface.co/playground)
 - [Chat completion models](https://huggingface.co/models?inference_provider=all&sort=trending&other=conversational)
 
-The plugin uses the same model list as the Hugging Face API, so any model shown in the playground should work with this plugin.
+The plugin uses the same model list as the Hugging Face API, so any model shown in the playground should work with this plugin. Run `llm hf refresh` periodically to update your local model list.
 
 ## Logging
 
@@ -180,7 +218,9 @@ llm install -e .
 # Verify installation
 llm plugins
 
-# Check that models appear
+# Check that models appear (either method works)
+llm hf models
+# or
 llm models | grep HuggingFaceChat
 ```
 
