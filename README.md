@@ -83,7 +83,7 @@ llm -m meta-llama/Llama-3.1-8B-Instruct "Explain quantum computing"
 **Basic usage:**
 
 ```bash
-llm -m meta-llama/Llama-3.1-8B-Instruct "Write a poem"
+llm -m meta-llama/Llama-3.1-8B-Instruct "Write a poem about translation"
 ```
 
 **With options:**
