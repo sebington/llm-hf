@@ -54,7 +54,7 @@ The plugin automatically discovers all available models from Hugging Face:
 llm models | grep HuggingFaceChat
 ```
 
-This will show ~118 models dynamically fetched from the Hugging Face API. If no API/HF token is set, you'll see 13 popular curated models.
+This will show ~118 models dynamically fetched from the Hugging Face API.
 
 ### Basic Usage
 
@@ -66,7 +66,7 @@ llm -m meta-llama/Llama-3.1-8B-Instruct "Explain quantum computing"
 
 ### Available Models
 
-**Dynamic Discovery**: When you have an `HF_TOKEN` set, the plugin automatically discovers ~118 models from the Hugging Face API, including:
+**Dynamic Discovery**: When you have an `HF_TOKEN` set, the plugin automatically discovers ~116 models from the Hugging Face API, including:
 
 - Meta Llama models (various sizes and versions)
 - Mistral and Mixtral models
@@ -77,14 +77,6 @@ llm -m meta-llama/Llama-3.1-8B-Instruct "Explain quantum computing"
 - NousResearch Hermes models
 - MiniMax models
 - And many more!
-
-**Fallback Models**: If no API key is configured, these popular models are available:
-
-- Meta Llama: 3.3-70B, 3.1-70B/8B, 3.2-3B/1B Instruct variants
-- Mistral: 7B, Mixtral 8x7B/8x22B Instruct
-- Qwen: 2.5-72B, 2.5-Coder-32B Instruct
-- DeepSeek V3
-- Google Gemma 2: 9B/27B IT
 
 ### Examples
 
