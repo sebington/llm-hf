@@ -26,16 +26,16 @@ llm install -e .
 
 ## Configuration
 
-You need a Hugging Face API token with "Make calls to Inference Providers" permissions.
+You need a Hugging Face "access token" with "Make calls to Inference Providers" permissions.
 
 First create a token at https://huggingface.co/settings/tokens/new?tokenType=fineGrained
 
-Configure the token/key using the `llm keys set hf` command:
+Configure the token using the `llm keys set hf` command:
 ```bash
 llm keys set hf
 ```
 ```
-<paste key here>
+<paste token here>
 ```
 
 Alternatively, set the environment variable:
@@ -187,22 +187,6 @@ llm models | grep HuggingFaceChat
 ### How Model Registration Works
 
 The plugin automatically fetches all available models from the Hugging Face API at startup. The `get_huggingface_models()` function in `llm_hf.py` queries the `/v1/models` endpoint.
-
-If you want to modify the fallback model list (used when no API key is available), edit the `model_ids` list in the `register_models()` function:
-
-```python
-if not model_ids:
-    model_ids = [
-        "meta-llama/Llama-3.1-8B-Instruct",
-        # Add or remove fallback models here
-    ]
-```
-
-Then reinstall:
-
-```bash
-llm install -e .
-```
 
 ## License
 
