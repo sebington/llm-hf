@@ -3,9 +3,8 @@ import os
 import json
 import click
 from openai import OpenAI, AsyncOpenAI
-from pathlib import Path
 from typing import Optional
-from pydantic import Field, field_validator
+from pydantic import Field
 
 
 def refresh_models():
