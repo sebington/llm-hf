@@ -1,6 +1,6 @@
 # llm-hf
 
-[LLM](https://llm.datasette.io/) plugin for accessing [Hugging Face Inference Providers](https://huggingface.co/docs/inference-providers/index) - giving you access to hundreds of open-weight models through a unified API.
+[LLM](https://llm.datasette.io/) plugin for accessing [Hugging Face Inference Providers](https://huggingface.co/docs/inference-providers/index) - giving you access to 100+ open-weight models through a unified API.
 
 ## Project Status
 
@@ -28,7 +28,7 @@ llm install -e .
 
 You need a Hugging Face access token with "Make calls to Inference Providers" permissions.
 
-First, create a token at https://huggingface.co/settings/tokens/new?tokenType=fineGrained
+First, create a token at https://huggingface.co/settings/tokens/new?tokenType=fineGrained.
 
 Then configure it using one of these methods:
 
@@ -44,8 +44,6 @@ llm keys set hf
 ```bash
 export HF_TOKEN="your-token-here"
 ```
-
-**Note:** For backward compatibility, `HF_API_KEY` is also supported, but `HF_TOKEN` is recommended as it matches Hugging Face's official naming convention.
 
 ## Usage
 
@@ -79,38 +77,6 @@ Both methods show ~116 models dynamically fetched from the Hugging Face API.
 Simply use the model name directly:
 
 ```bash
-llm -m meta-llama/Llama-3.1-8B-Instruct "Explain quantum computing"
-```
-
-### Available Models
-
-The plugin automatically discovers ~116 models from the Hugging Face API (when you have an `HF_TOKEN` set), including:
-
-- Meta Llama models (various sizes and versions)
-- Mistral and Mixtral models
-- Qwen and QwQ models
-- DeepSeek models
-- Google Gemma models
-- Cohere Command and Aya models
-- NousResearch Hermes models
-- MiniMax models
-- And many more!
-
-### Examples
-
-**Using plugin commands:**
-
-```bash
-# List available models
-llm hf models
-
-# Check for model updates
-llm hf refresh
-```
-
-**Basic usage:**
-
-```bash
 llm -m meta-llama/Llama-3.1-8B-Instruct "Write a poem about translation"
 ```
 
@@ -131,7 +97,7 @@ llm -m meta-llama/Llama-3.1-8B-Instruct \
   "What is the capital of France?"
 ```
 
-**In a conversation:**
+**In chat mode:**
 
 ```bash
 llm chat -m meta-llama/Llama-3.1-8B-Instruct
@@ -173,15 +139,7 @@ When using the `provider` option, you can choose from:
 
 ### Finding More Models
 
-All models available through Hugging Face Inference Providers are automatically discoverable:
-
-```bash
-# Recommended: Use the plugin command
-llm hf models
-
-# Or use the global command with filtering
-llm models | grep HuggingFaceChat
-```
+All models available through Hugging Face Inference Providers are automatically discoverable using the commands above.
 
 You can also browse available models at:
 - [Hugging Face Inference Playground](https://huggingface.co/playground)
@@ -202,32 +160,6 @@ View the most recent entry:
 ```bash
 llm logs -n 1
 ```
-
-## Development
-
-To set up this plugin for development:
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/llm-hf
-cd llm-hf
-
-# Install in editable mode
-llm install -e .
-
-# Verify installation
-llm plugins
-
-# Check that models appear (either method works)
-llm hf models
-# or
-llm models | grep HuggingFaceChat
-```
-
-### How Model Registration Works
-
-The plugin automatically fetches all available models from the Hugging Face API at startup. The `get_huggingface_models()` function in `llm_hf.py` queries the `/v1/models` endpoint.
-
 ## License
 
 Apache 2.0
