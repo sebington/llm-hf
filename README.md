@@ -6,7 +6,7 @@
 
 This is a personal project. Contributions and feedback are welcome, but please note that support may be limited.
 
-I have described the various steps to achieve this in [my blog](https://sebington.github.io/) (in French). See 18 October 2025 for genesis.
+I have described the various steps to achieve this in [my blog](https://sebington.github.io/) (in French), starting on 18 October 2025.
 
 ## Installation
 
