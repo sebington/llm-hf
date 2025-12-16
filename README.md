@@ -6,7 +6,7 @@
 
 This is a personal project. Contributions and feedback are welcome, but please note that support may be limited.
 
-I have described the various steps to achieve this in [my blog](https://sebington.github.io/) (in French), starting on 18 October 2025.
+I have described the various steps to achieve this in [my blog](https://sebington.github.io/) (in French). Initial idea on 18-19 October 2025. Implementation 02-06 November 2025. Testing 11 & 14 November 2025.
 
 ## Installation
 
